@@ -77,6 +77,7 @@ class scheduler
         max_threads=mt;
         runing_threads=0;
         scheduled_threads=0;
+        dispatched_threads=0;
     }
 
     ~scheduler()
@@ -93,7 +94,9 @@ class scheduler
 
     void overwrite_scheduled_threads(int a)
     {
+        m.lock();
         scheduled_threads+=a;
+        m.unlock();
     }
 
     void schedule(void (*f)(coords), coords c)
@@ -137,7 +140,7 @@ class scheduler
 
     void print_thread_info()
     {
-        cout << "st: " << scheduled_threads << " " << "rt: " << runing_threads << " " << "dp: " << dispatched_threads << endl;
+        cout << "st: " << scheduled_threads << " rt: " << runing_threads << " dp: " << dispatched_threads << " queued_t: " << scheduled_threads-dispatched_threads << endl;
     }
 };
 
@@ -148,13 +151,13 @@ scheduler* S;
 
 vector<string> CM;
 vector<vector<int>> ACM;
-vector<vector<int>> dead_end_vector_position; //critical region
-vector<vector<int>> dead_ends_paths;
+vector<vector<int>> dead_end_vector_position; //fixed(can be improved)
+vector<vector<int>> dead_ends_paths;//fixed(can be improved)
 coords start;
-vector<int> solution;
+vector<int> solution;//decreasing
 int lines=0, columns=0, open_cells=0;
 
-mutex** nav_mtxs;
+mutex** nav_mtxs;//fixed
 mutex m_dep;
 
 int main(int argc, char* argv[]){
@@ -296,9 +299,8 @@ int main(int argc, char* argv[]){
         S->m_mtx.unlock();
     }
 
-    cout << "here";
     //add other procedures here
-    //if ic is inside dead_end, follow ACM to find the exit
+    //if ic is inside dead_end, follow ACM to find the exit TODO:v2
 
 
     //pathFinder
@@ -334,7 +336,7 @@ void dead_end_thread(coords ic)
                 i--;
                 path.push_back(0);
                 path.insert(path.begin(), 1);
-                ACM[ti][ti]=0;
+                ACM[ti][tj]=0;
             }
             else if(i+1<lines && CM[i+1][j]=='0')//down:1
             {
@@ -387,18 +389,19 @@ void walker(coords ic)
     {
         bool flag=false;
 
-        if(solution.size()!=0 && path.size()>=(size_t)solution.size())
+        if((solution.size()!=0 && path.size()>=(size_t)solution.size()) || solution.size()==(size_t)open_cells)
         {
             S->dispatch();
             return;
         }
 
-        if(dead_end_vector_position[i][j]!=0 && reg[i][j]==0) //append dead_ends
+        if(dead_end_vector_position[i][j]!=0 && reg[i][j]<=1) //append dead_ends
         {
             path.insert(path.end(), dead_ends_paths[dead_end_vector_position[i][j]-1].begin(), dead_ends_paths[dead_end_vector_position[i][j]-1].end());
             cells+=dead_ends_paths[dead_end_vector_position[i][j]-1].size()/2;//checar isso daqui
         }
-        
+        //possible optimizations: check corners of 4. Number of repetition equals the number of corners.
+        //                        lenght 2 BFS for dynamic dead-line detection
         coords safe(i, j, dir, cells, path, reg);
         if(safe.line-1>=0 && CM[safe.line-1][safe.column]=='0' && reg[safe.line-1][safe.column]<ACM[safe.line-1][safe.column] && safe.direction!=1)//up:0
         {
