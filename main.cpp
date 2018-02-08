@@ -160,7 +160,7 @@ int lines=0, columns=0, open_cells=0;
 mutex** nav_mtxs;//fixed
 mutex m_dep;
 
-int main(int argc, char* argv[]){
+int main(int argc, char* argv[])
 {
     S=new scheduler(argc>1 ? stoi(argv[1]) : DEFAULT_MAX_THREADS);
     vector<coords> dead_ends; //dead_ends
@@ -312,8 +312,6 @@ int main(int argc, char* argv[]){
 
     S->print_thread_info();
     //cout << "results have been saved to [arquivo]. \nPress any key to continue...";
-}
-cin.get();
 }
 
 void dead_end_thread(coords ic)
