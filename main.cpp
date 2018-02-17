@@ -299,8 +299,7 @@ int main(int argc, char* argv[])
         S->m_mtx.unlock();
     }
 
-    //ACM reduction
-    for(int i=1; i<lines-1; i++)
+	for(int i=1; i<lines-1; i++)
     {
         for(int j=1; j<columns-1; j++)
         {
@@ -330,7 +329,7 @@ int main(int argc, char* argv[])
             }
         }
     }
-    
+
     //add other procedures here
     //if ic is inside dead_end, follow ACM to find the exit TODO:v2
 
@@ -418,6 +417,8 @@ void walker(coords ic)
     while(cells!=open_cells || i!=start.line || j!=start.column)
     {
         bool flag=false;
+        int boolc;
+        bool bools[4];
 
         if((solution.size()!=0 && path.size()>=(size_t)solution.size()) || solution.size()==(size_t)open_cells)
         {
@@ -432,8 +433,13 @@ void walker(coords ic)
         }
         //possible optimizations: check corners of 4. Number of repetition equals the number of corners.
         //                        lenght 2 BFS for dynamic dead-line detection
+        bools[0]=i-1>=0 && CM[i-1][j]=='0' && reg[i-1][j]==0;
+        bools[1]=i+1<lines && CM[i+1][j]=='0' && reg[i+1][j]==0;
+        bools[2]=j-1>=0 && CM[i][j-1]=='0' && reg[i][j-1]==0;
+        bools[3]=j+1<columns && CM[i][j+1]=='0' && reg[i][j+1]==0;
+        boolc=bools[0]+bools[1]+bools[2]+bools[3];
         coords safe(i, j, dir, cells, path, reg);
-        if(safe.line-1>=0 && CM[safe.line-1][safe.column]=='0' && reg[safe.line-1][safe.column]<ACM[safe.line-1][safe.column] && safe.direction!=1)//up:0
+        if(safe.line-1>=0 && CM[safe.line-1][safe.column]=='0' && reg[safe.line-1][safe.column]<ACM[safe.line-1][safe.column] && safe.direction!=1 && (boolc==0||bools[0]))//up:0
         {
             i--;
             path.push_back(0);
@@ -442,7 +448,7 @@ void walker(coords ic)
             flag=true;
             reg[i][j]++; //mark path on matrix
         }
-        if(safe.line+1<lines && CM[safe.line+1][safe.column]=='0' && reg[safe.line+1][safe.column]<ACM[safe.line+1][safe.column] && safe.direction!=0)//down:1
+        if(safe.line+1<lines && CM[safe.line+1][safe.column]=='0' && reg[safe.line+1][safe.column]<ACM[safe.line+1][safe.column] && safe.direction!=0 && (boolc==0||bools[1]))//down:1
         {
             if(!flag)
             {
@@ -463,7 +469,7 @@ void walker(coords ic)
                 S->schedule(walker, coords(safe.line+1, safe.column, 1, safe.cells+(reg[safe.line+1][safe.column]==0 ?1:0), s_path, s_reg));
             }
         }
-        if(safe.column-1>=0 && CM[safe.line][safe.column-1]=='0' && reg[safe.line][safe.column-1]<ACM[safe.line][safe.column-1] && safe.direction!=3)//left:2
+        if(safe.column-1>=0 && CM[safe.line][safe.column-1]=='0' && reg[safe.line][safe.column-1]<ACM[safe.line][safe.column-1] && safe.direction!=3 && (boolc==0||bools[2]))//left:2
         {
             if(!flag)
             {
@@ -484,7 +490,7 @@ void walker(coords ic)
                 S->schedule(walker, coords(safe.line, safe.column-1, 2, safe.cells+(reg[safe.line][safe.column-1]==0 ?1:0), s_path, s_reg));
             }
         }
-        if(safe.column+1<columns && CM[safe.line][safe.column+1]=='0' && reg[safe.line][safe.column+1]<ACM[safe.line][safe.column+1] && safe.direction!=2)//right:3
+        if(safe.column+1<columns && CM[safe.line][safe.column+1]=='0' && reg[safe.line][safe.column+1]<ACM[safe.line][safe.column+1] && safe.direction!=2 && (boolc==0||bools[3]))//right:3
         {
             if(!flag)
             {
@@ -521,7 +527,7 @@ void walker(coords ic)
         return;
     }
     solution=path;
-    cout << "path: ";
+    cout << "size: " << path.size() << " path: ";
     for(size_t k=0; k<path.size(); k++)
     {
         cout << path[k];
