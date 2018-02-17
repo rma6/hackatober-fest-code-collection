@@ -299,6 +299,38 @@ int main(int argc, char* argv[])
         S->m_mtx.unlock();
     }
 
+    //ACM reduction
+    for(int i=1; i<lines-1; i++)
+    {
+        for(int j=1; j<columns-1; j++)
+        {
+            if(ACM[i][j]==4)
+            {
+                int t=0;
+                if(CM[i+1][j+1]=='1')
+                {
+                    t++;
+                }
+                if(CM[i+1][j-1]=='1')
+                {
+                    t++;
+                }
+                if(CM[i-1][j+1]=='1')
+                {
+                    t++;
+                }
+                if(CM[i-1][j-1]=='1')
+                {
+                    t++;
+                }
+                if(t==0)
+                {
+                    ACM[i][j]=2;
+                }
+            }
+        }
+    }
+    
     //add other procedures here
     //if ic is inside dead_end, follow ACM to find the exit TODO:v2
 
