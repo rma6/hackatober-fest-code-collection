@@ -431,14 +431,22 @@ void walker(coords ic)
             path.insert(path.end(), dead_ends_paths[dead_end_vector_position[i][j]-1].begin(), dead_ends_paths[dead_end_vector_position[i][j]-1].end());
             cells+=dead_ends_paths[dead_end_vector_position[i][j]-1].size()/2;//checar isso daqui
         }
-        //possible optimizations: check corners of 4. Number of repetition equals the number of corners.
-        //                        lenght 2 BFS for dynamic dead-line detection
+        
+        //garante que se há um caminho livre ele irá ser tomado
         bools[0]=i-1>=0 && CM[i-1][j]=='0' && reg[i-1][j]==0;
         bools[1]=i+1<lines && CM[i+1][j]=='0' && reg[i+1][j]==0;
         bools[2]=j-1>=0 && CM[i][j-1]=='0' && reg[i][j-1]==0;
         bools[3]=j+1<columns && CM[i][j+1]=='0' && reg[i][j+1]==0;
         boolc=bools[0]+bools[1]+bools[2]+bools[3];
+
+        //calcular adjacencia
+        int adj=(i-1>=0 && reg[i-1][j]==0)+(i+1<lines && reg[i+1][j]==0)+(j-1>=0 && reg[i][j-1]==0)+(j+1>columns && reg[i][j+1]==0);
+        
         coords safe(i, j, dir, cells, path, reg);
+        if(reg[i][j]==1 && adj==0)
+        {
+            safe.direction=-1;
+        }
         if(safe.line-1>=0 && CM[safe.line-1][safe.column]=='0' && reg[safe.line-1][safe.column]<ACM[safe.line-1][safe.column] && safe.direction!=1 && (boolc==0||bools[0]))//up:0
         {
             i--;
