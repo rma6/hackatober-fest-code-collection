@@ -445,8 +445,10 @@ void walker(coords ic)
         coords safe(i, j, dir, cells, path, reg);
         if(reg[i][j]==1 && adj==0)
         {
-            safe.direction=-1;
+            dir=-1;
         }
+	    
+    	coords safe(i, j, dir, cells, path, reg);
         if(safe.line-1>=0 && CM[safe.line-1][safe.column]=='0' && reg[safe.line-1][safe.column]<ACM[safe.line-1][safe.column] && safe.direction!=1 && (boolc==0||bools[0]))//up:0
         {
             i--;
