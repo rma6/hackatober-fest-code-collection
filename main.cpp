@@ -442,7 +442,6 @@ void walker(coords ic)
         //calcular adjacencia
         int adj=(i-1>=0 && reg[i-1][j]==0)+(i+1<lines && reg[i+1][j]==0)+(j-1>=0 && reg[i][j-1]==0)+(j+1>columns && reg[i][j+1]==0);
         
-        coords safe(i, j, dir, cells, path, reg);
         if(reg[i][j]==1 && adj==0)
         {
             dir=-1;
