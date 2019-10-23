@@ -160,7 +160,7 @@ int lines=0, columns=0, open_cells=0;
 mutex** nav_mtxs;//fixed
 mutex m_dep;
 
-int main(int argc, char* argv[])
+int main(int argc, char* argv[]) // you should split your code in more files 
 {
     S=new scheduler(argc>1 ? stoi(argv[1]) : DEFAULT_MAX_THREADS);
     vector<coords> dead_ends; //dead_ends
